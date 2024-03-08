@@ -13,6 +13,7 @@ namespace asysa_inmed_cenabast
     public partial class Service1 : ServiceBase
     {
         private Timer timer;
+        private DateTime lastLogDate;
         private readonly IConfiguration configuration;
 
         public Service1()
@@ -27,6 +28,12 @@ namespace asysa_inmed_cenabast
         // Este método se llama cuando el servicio se inicia.
         protected override void OnStart(string[] args)
         {
+            // Inicializa la fecha del último registro al día actual.
+            lastLogDate = DateTime.Now.Date;
+
+            // Registra el inicio del servicio en el archivo de registro.
+            LogStart("Inicio del servicio API_ASYSA_CENABAST");
+
             // Configuración del temporizador para ejecutar el método TimerElapsed cada 60 segundos.
             timer = new Timer();
             timer.Interval = 60000;
@@ -39,6 +46,14 @@ namespace asysa_inmed_cenabast
         {
             try
             {
+                // Verifica si el día actual es diferente al día del último registro.
+                if (DateTime.Now.Date != lastLogDate)
+                {
+                    // Si es diferente, crea un nuevo archivo de registro.
+                    lastLogDate = DateTime.Now.Date;
+                    CreateNewLogFile();
+                }
+
                 // Obtener la URL de la API y el contenido JSON desde la configuración.
                 string apiUrl = configuration["ApiUrl"];
                 string jsonPayload = configuration["ApiJsonPayload"];
@@ -66,14 +81,14 @@ namespace asysa_inmed_cenabast
         // Este método registra mensajes de error en un archivo de registro.
         private void LogError(string message)
         {
-            string logPath = configuration["LogFilePath"];
+            string logPath = GetLogFilePath();
             File.AppendAllText(logPath, $"[ERROR] {DateTime.Now}: {message}\n");
         }
 
         // Este método registra mensajes de éxito en un archivo de registro.
         private void LogSuccess(string message)
         {
-            string logPath = configuration["LogFilePath"];
+            string logPath = GetLogFilePath();
             File.AppendAllText(logPath, $"[SUCCESS] {DateTime.Now}: {message}\n");
         }
 
@@ -102,5 +117,28 @@ namespace asysa_inmed_cenabast
             timer.Stop();
             timer.Dispose();
         }
+
+        // Este método registra el inicio del servicio en el archivo de registro.
+        private void LogStart(string message)
+        {
+            string logPath = GetLogFilePath();
+            File.AppendAllText(logPath, $"[SERVICE START] {DateTime.Now}: {message}\n");
+        }
+
+        // Este método crea un nuevo archivo de registro con el nombre log_asysa_cenabast_fecha.
+        private void CreateNewLogFile()
+        {
+            string logFileName = $"log_asysa_cenabast_{DateTime.Now:yyyyMMdd}.txt";
+            string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, logFileName);
+            File.WriteAllText(logPath, string.Empty); // Crea un archivo vacío.
+        }
+
+        // Este método devuelve la ruta del archivo de registro actual.
+        private string GetLogFilePath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"log_asysa_cenabast_{lastLogDate:yyyyMMdd}.txt");
+        }
     }
 }
+
+
