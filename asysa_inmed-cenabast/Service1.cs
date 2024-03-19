@@ -29,8 +29,6 @@ namespace asysa_inmed_cenabast
         protected override void OnStart(string[] args)
         {
             // Inicializa la fecha del último registro al día actual.
-            lastLogDate = DateTime.Now.Date;
-
             // Registra el inicio del servicio en el archivo de registro.
             LogStart("Inicio del servicio API_ASYSA_CENABAST");
 
@@ -97,7 +95,7 @@ namespace asysa_inmed_cenabast
         {
             string toAddress = configuration["ToEmailAddress"];
             string subject = "Error en el servicio";
-            string body = $"Se produjo un error en el servicio:\n\n{errorMessage}";
+            string body = $"Se produjo un error en el servicio de cenabast:\n\n{errorMessage}";
 
             using (SmtpClient smtpClient = new SmtpClient(configuration["SmtpServer"]))
             {

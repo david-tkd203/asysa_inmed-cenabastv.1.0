@@ -198,6 +198,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\ConsultasAPI.cs" />
+    <Compile Include="Class\NotaVentaWeb.cs" />
+    <Compile Include="DB\DataBaseHelper.cs" />
     <Compile Include="Service1.cs">
       <SubType>Component</SubType>
     </Compile>
